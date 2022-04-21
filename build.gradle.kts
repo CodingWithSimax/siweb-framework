@@ -17,9 +17,11 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.17.2")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.17.2")
 
-
     implementation("org.apache.logging.log4j:log4j-api:2.17.2")
     runtimeOnly("org.apache.logging.log4j:log4j-api:2.17.2")
+
+    implementation("org.jsoup:jsoup:1.14.3")
+    runtimeOnly("org.jsoup:jsoup:1.14.3")
 }
 
 tasks.getByName<Test>("test") {

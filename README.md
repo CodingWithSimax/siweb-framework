@@ -1,2 +1,2 @@
 ## Siweb - Framework
-Framework mainly written in Java, wihtout any need of Javascript knowledge.
+Framework mainly written in Java, without any need of Javascript knowledge.
