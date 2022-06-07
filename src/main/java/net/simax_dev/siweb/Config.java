@@ -1,6 +1,5 @@
 package net.simax_dev.siweb;
 
-import net.simax_dev.WebServer;
 import net.simax_dev.siweb.enums.CommunicationType;
 
 import java.net.InetSocketAddress;

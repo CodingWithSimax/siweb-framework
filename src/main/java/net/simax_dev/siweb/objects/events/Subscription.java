@@ -1,4 +1,4 @@
-package net.simax_dev.objects.events;
+package net.simax_dev.siweb.objects.events;
 
 import java.util.function.Consumer;
 

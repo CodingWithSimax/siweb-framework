@@ -10,7 +10,7 @@ public enum CommunicationType {
     ACTIVE,
 
     /**
-     * The passive CommunicationType lets the user pull new events periodically from the server
+     * The passive CommunicationType lets the user pull new events periodically from the server using http requests
      */
     PASSIVE;
 }

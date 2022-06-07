@@ -10,6 +10,10 @@ public class ExampleApplication {
     public static void main(String[] args) {
         logger.info("Starting example application...");
 
-        new WebApplication();
+        WebApplication webApplication = new WebApplication();
+
+        webApplication.loadDependencies(ExampleApplication.class.getPackage());
+
+        webApplication.start();
     }
 }

@@ -6,7 +6,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="net.simax_dev.siweb" level="info" additivity="false">
+        <Logger name="net.simax_dev.siweb" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="net.simax_dev.example" level="info" additivity="false">
