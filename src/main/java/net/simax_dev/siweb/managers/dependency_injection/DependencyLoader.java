@@ -33,6 +33,9 @@ public class DependencyLoader {
             this.loadDependency(aClass);
         }
     }
+    public Set<Class<?>> getComponents() {
+        return this.components;
+    }
     public void loadDependencies(Set<Class<?>> classes) {
         for (Class<?> aClass : classes) {
             this.loadDependency(aClass);
@@ -146,7 +149,7 @@ public class DependencyLoader {
             }
             names.add(service.getSimpleName());
 
-            throw new RuntimeException("Circular dependency detected: " + String.join(" -> ", names));
+            throw new RuntimeException("Circular static dependency detected: " + String.join(" -> ", names));
         }
 
         Class<?>[] reqDependencies = service.getConstructors()[0].getParameterTypes();

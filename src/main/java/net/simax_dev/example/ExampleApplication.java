@@ -10,7 +10,7 @@ public class ExampleApplication {
     public static void main(String[] args) {
         logger.info("Starting example application...");
 
-        WebApplication webApplication = new WebApplication();
+        WebApplication webApplication = new WebApplication(ExampleApplication.class.getClassLoader());
 
         webApplication.loadDependencies(ExampleApplication.class.getPackage());
 

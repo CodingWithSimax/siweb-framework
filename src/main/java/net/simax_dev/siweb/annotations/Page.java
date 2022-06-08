@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Component {
-    String templateURL();
-    String styleURL() default "";
+public @interface Page {
+    String value();
 }

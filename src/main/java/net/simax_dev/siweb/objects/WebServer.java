@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.simax_dev.siweb.Config;
 import net.simax_dev.siweb.WebApplication;
+import net.simax_dev.siweb.managers.WebServerLoader;
+import net.simax_dev.siweb.managers.dependency_injection.DependencyLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,9 +23,13 @@ public class WebServer {
     private final InetSocketAddress address;
 
     private final HttpServer httpServer;
+    private final WebServerLoader webServerLoader;
+    private final DependencyLoader dependencyLoader;
 
-    public WebServer(WebApplication webApplication) throws IOException {
+    public WebServer(WebApplication webApplication, DependencyLoader dependencyLoader, ClassLoader classLoader) throws IOException {
         this.webApplication = webApplication;
+        this.dependencyLoader = dependencyLoader;
+        this.webServerLoader = new WebServerLoader(webApplication, this, classLoader);
         this.config = webApplication.getConfig();
         this.address = this.config.getSocketAddress();
         this.httpServer = HttpServer.create(this.address, 0);
@@ -31,6 +37,10 @@ public class WebServer {
 
     public void registerHandler(String context, HttpHandler handler) {
         this.httpServer.createContext(context, handler);
+    }
+
+    public void loadComponents() {
+        this.webServerLoader.loadComponents(this.dependencyLoader.getComponents());
     }
 
     /**

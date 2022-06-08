@@ -15,18 +15,32 @@ public class WebApplication {
     private final WebServer webServer;
     private final DependencyLoader dependencyLoader;
 
-    public WebApplication() {
-        this(ConfigFactory.create().build());
+    private final ClassLoader packageClassLoader;
+
+    /**
+     * Init the web WebApplication using default config
+     * @param packageClassLoader the needed package class loader for loading resources, can be get by {@link Class#getClassLoader()}
+     */
+    public WebApplication(ClassLoader packageClassLoader) {
+        this(ConfigFactory.create().build(), packageClassLoader);
     }
-    public WebApplication(Config config) {
+
+    /**
+     * Init the WebApplication
+     * @param config needed config, created by {@link net.simax_dev.siweb.factories.ConfigFactory}
+     * @param packageClassLoader the needed package class loader for loading resources, can be get by {@link Class#getClassLoader()}
+     */
+    public WebApplication(Config config, ClassLoader packageClassLoader) {
         this.config = config;
+        this.dependencyLoader = new DependencyLoader(this);
         try {
-            this.webServer = new WebServer(this);
+            this.webServer = new WebServer(this, this.dependencyLoader, packageClassLoader);
         } catch (IOException e) {
             logger.error("Could not create webserver", e);
             throw new RuntimeException(e);
         }
-        this.dependencyLoader = new DependencyLoader(this);
+
+        this.packageClassLoader = packageClassLoader;
     }
 
     public Config getConfig() {
@@ -51,6 +65,9 @@ public class WebApplication {
 
         // initialise dependencies
         this.dependencyLoader.load();
+
+        // load webserver components
+        this.webServer.loadComponents();
 
         // start webserver
         this.webServer.start();
