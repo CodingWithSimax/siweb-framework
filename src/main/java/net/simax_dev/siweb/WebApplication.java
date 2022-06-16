@@ -69,6 +69,8 @@ public class WebApplication {
         // load webserver components
         this.webServer.loadComponents();
 
+        this.dependencyLoader.loadUser();
+
         // start webserver
         this.webServer.start();
     }
