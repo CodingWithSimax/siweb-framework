@@ -61,7 +61,7 @@ public class WebApplication {
      * Start the web application, including webserver
      */
     public void start() {
-        logger.debug("Starting Web Application...");
+        logger.info("Starting Web Application...");
 
         // initialise dependencies
         this.dependencyLoader.load();
@@ -69,9 +69,14 @@ public class WebApplication {
         // load webserver components
         this.webServer.loadComponents();
 
-        this.dependencyLoader.loadUser();
-
         // start webserver
         this.webServer.start();
+    }
+
+    public void stop() {
+        logger.info("Stopping Web Application...");
+        this.webServer.stop();
+
+        this.dependencyLoader.destroy();
     }
 }

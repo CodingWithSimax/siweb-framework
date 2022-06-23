@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Page {
     String value();
+
+    boolean isFallback() default false;
 }

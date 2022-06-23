@@ -81,10 +81,10 @@ public class DependencyLoader {
         this.staticServices.instantiateDependencies();
     }
 
-    public UserDependencyInjection loadUser() {
+    public UserDependencyInjection loadUser(NetworkClientInformation networkClientInformation) {
         DependencyInjection internServices = this.internServices.clone();
         internServices.instantiateDependencies(new HashMap<>() {{
-            put(NetworkClientInformation.class, new NetworkClientInformation("http://localhost:8080", "http://localhost:8080"));
+            put(NetworkClientInformation.class, networkClientInformation);
         }});
         DependencyInjection services = this.services.clone(internServices);
         services.instantiateDependencies();
@@ -93,5 +93,9 @@ public class DependencyLoader {
                 internServices,
                 services
         );
+    }
+
+    public void destroy() {
+        this.staticServices.destroy();
     }
 }

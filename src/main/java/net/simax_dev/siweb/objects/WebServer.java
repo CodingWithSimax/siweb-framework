@@ -1,5 +1,6 @@
 package net.simax_dev.siweb.objects;
 
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.simax_dev.siweb.Config;
@@ -11,6 +12,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Basic webserver for handling incoming requests
@@ -26,6 +30,8 @@ public class WebServer {
     private final WebServerLoader webServerLoader;
     private final DependencyLoader dependencyLoader;
 
+    private WebServerHttpHandler webServerHttpHandler;
+
     public WebServer(WebApplication webApplication, DependencyLoader dependencyLoader, ClassLoader classLoader) throws IOException {
         this.webApplication = webApplication;
         this.dependencyLoader = dependencyLoader;
@@ -33,10 +39,13 @@ public class WebServer {
         this.config = webApplication.getConfig();
         this.address = this.config.getSocketAddress();
         this.httpServer = HttpServer.create(this.address, 0);
+
+        this.webServerHttpHandler = new WebServerHttpHandler(webApplication, this);
+        this.httpServer.createContext("/", this.webServerHttpHandler);
     }
 
-    public void registerHandler(String context, HttpHandler handler) {
-        this.httpServer.createContext(context, handler);
+    public void registerHandler(URIPath context, BiConsumer<HttpExchange, Map<String, String>> consumer) {
+        this.webServerHttpHandler.registerHandler(context, consumer);
     }
 
     public void loadComponents() {
@@ -52,5 +61,13 @@ public class WebServer {
         this.httpServer.start();
 
         logger.info("Webserver started on port " + this.address.getPort());
+    }
+
+    public void stop() {
+        logger.debug("Stopping webserver...");
+
+        this.httpServer.stop(0);
+
+        logger.debug("Webserver stopped");
     }
 }
