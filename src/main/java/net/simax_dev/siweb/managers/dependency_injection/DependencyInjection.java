@@ -24,19 +24,6 @@ import java.util.*;
 public class DependencyInjection {
     private final static Logger logger = LogManager.getLogger(DependencyInjection.class.getName());
 
-    private final static Set<Class<?>> allowedTypes = new HashSet<>() {{
-        add(int.class);
-        add(long.class);
-        add(float.class);
-        add(double.class);
-        add(boolean.class);
-        add(char.class);
-        add(byte.class);
-        add(short.class);
-        add(String.class);
-    }};
-
-
     // both attributes are including the same services, while "services" will be sorted in right order
     private final Set<Class<?>> dependencies = new HashSet<>();
     private final List<Class<?>> services = new ArrayList<>();
@@ -155,9 +142,9 @@ public class DependencyInjection {
                 initOrder.add(service);
                 this.loadInjectable(reqDependency, initOrder, whitelistedClasses);
             } else if (this.parent != null && reqDependency.isAnnotationPresent(this.parent.getAnnotation()) && this.parent.getServices().contains(reqDependency)) {
-                continue; // in case it is a dependency from the parent, we will simply ignore it
+                // in case it is a dependency from the parent, we will simply ignore it
             } else if (whitelistedClasses.contains(reqDependency)) {
-                continue; // in case it is whitelisted, but not found, we will also ignore this
+                // in case it is whitelisted, but not found, we will also ignore this
             } else {
                 throw new RuntimeException("Service dependency not found: " + reqDependency.getName());
             }
@@ -233,7 +220,7 @@ public class DependencyInjection {
     /**
      * Clone a dependency injection
      * @param parent the parent dependency injection, can be null, cloned etc.
-     * @return
+     * @return new dependency injection with same attributes, but without stored objects
      */
     public DependencyInjection clone(DependencyInjection parent) {
         if (this.parent == null || !this.parent.getAnnotation().equals(parent.getAnnotation())) {

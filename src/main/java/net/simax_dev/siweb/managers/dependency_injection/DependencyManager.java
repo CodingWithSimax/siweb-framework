@@ -6,8 +6,8 @@ import net.simax_dev.siweb.annotations.InternService;
 import net.simax_dev.siweb.annotations.Service;
 import net.simax_dev.siweb.annotations.StaticService;
 import net.simax_dev.siweb.objects.UserDependencyInjection;
-import net.simax_dev.siweb.services.NetworkClient;
-import net.simax_dev.siweb.services.NetworkClientInformation;
+import net.simax_dev.siweb.common.services.NetworkClient;
+import net.simax_dev.siweb.common.services.NetworkClientInformation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
@@ -15,8 +15,8 @@ import org.reflections.scanners.Scanners;
 
 import java.util.*;
 
-public class DependencyLoader {
-    private static final Logger logger = LogManager.getLogger(DependencyLoader.class.getName());
+public class DependencyManager {
+    private static final Logger logger = LogManager.getLogger(DependencyManager.class.getName());
 
     private final WebApplication webApplication;
 
@@ -27,7 +27,7 @@ public class DependencyLoader {
     private final DependencyInjection services;
 
 
-    public DependencyLoader(WebApplication webApplication) {
+    public DependencyManager(WebApplication webApplication) {
         this.webApplication = webApplication;
 
         this.staticServices = new DependencyInjection(StaticService.class);

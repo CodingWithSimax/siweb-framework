@@ -7,9 +7,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -28,6 +32,8 @@ public class WebServerHttpHandler implements HttpHandler {
         this.webServer = webServer;
 
         this.handlers = new HashMap<>();
+
+        this.useStaticFiles("net/simax_dev/siweb/dist/", WebServerHttpHandler.class.getClassLoader(), URIPath.of("/api/intern"));
     }
 
     public void registerHandler(URIPath path, BiConsumer<HttpExchange, Map<String, String>> consumer) {
@@ -39,6 +45,35 @@ public class WebServerHttpHandler implements HttpHandler {
             return;
         }
         this.fallback = consumer;
+    }
+    public void useStaticFiles(String path, ClassLoader classLoader, URIPath binding) {
+        binding.addURIPart(new URIPathPart("**"));
+        this.registerHandler(binding, (exchange, map) -> {
+            URIPath uriPath = URIPath.of(exchange.getRequestURI().toString());
+            URIPath parts = new URIPath(uriPath.getParts().subList(binding.getParts().size() - 1, uriPath.getParts().size()));
+
+            String resultPath = path + (path.endsWith("/") ? "" : "/") + parts.toString();
+
+            if (classLoader.getResource(resultPath) == null) {
+                return;
+            }
+
+            try {
+                InputStream inputStream = classLoader.getResourceAsStream(resultPath);
+                assert inputStream != null;
+                String result = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                inputStream.close();
+
+                exchange.getResponseHeaders().set("Content-Type", "text/html");
+                exchange.sendResponseHeaders(200, result.length());
+
+                OutputStream outputStream = exchange.getResponseBody();
+                outputStream.write(result.getBytes(StandardCharsets.UTF_8));
+                outputStream.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
     }
 
     @Override

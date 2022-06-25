@@ -1,7 +1,7 @@
 package net.simax_dev.siweb;
 
 import net.simax_dev.siweb.factories.ConfigFactory;
-import net.simax_dev.siweb.managers.dependency_injection.DependencyLoader;
+import net.simax_dev.siweb.managers.dependency_injection.DependencyManager;
 import net.simax_dev.siweb.objects.WebServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +13,7 @@ public class WebApplication {
 
     private final Config config;
     private final WebServer webServer;
-    private final DependencyLoader dependencyLoader;
+    private final DependencyManager dependencyLoader;
 
     private final ClassLoader packageClassLoader;
 
@@ -32,7 +32,7 @@ public class WebApplication {
      */
     public WebApplication(Config config, ClassLoader packageClassLoader) {
         this.config = config;
-        this.dependencyLoader = new DependencyLoader(this);
+        this.dependencyLoader = new DependencyManager(this);
         try {
             this.webServer = new WebServer(this, this.dependencyLoader, packageClassLoader);
         } catch (IOException e) {

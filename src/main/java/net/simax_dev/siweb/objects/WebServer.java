@@ -1,12 +1,11 @@
 package net.simax_dev.siweb.objects;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.simax_dev.siweb.Config;
 import net.simax_dev.siweb.WebApplication;
 import net.simax_dev.siweb.managers.WebServerLoader;
-import net.simax_dev.siweb.managers.dependency_injection.DependencyLoader;
+import net.simax_dev.siweb.managers.dependency_injection.DependencyManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Basic webserver for handling incoming requests
@@ -28,11 +26,11 @@ public class WebServer {
 
     private final HttpServer httpServer;
     private final WebServerLoader webServerLoader;
-    private final DependencyLoader dependencyLoader;
+    private final DependencyManager dependencyLoader;
 
-    private WebServerHttpHandler webServerHttpHandler;
+    private final WebServerHttpHandler webServerHttpHandler;
 
-    public WebServer(WebApplication webApplication, DependencyLoader dependencyLoader, ClassLoader classLoader) throws IOException {
+    public WebServer(WebApplication webApplication, DependencyManager dependencyLoader, ClassLoader classLoader) throws IOException {
         this.webApplication = webApplication;
         this.dependencyLoader = dependencyLoader;
         this.webServerLoader = new WebServerLoader(webApplication, this, classLoader);
@@ -47,9 +45,16 @@ public class WebServer {
     public void registerHandler(URIPath context, BiConsumer<HttpExchange, Map<String, String>> consumer) {
         this.webServerHttpHandler.registerHandler(context, consumer);
     }
+    public void setFallback(BiConsumer<HttpExchange, Map<String, String>> consumer) {
+        this.webServerHttpHandler.setFallbackHandler(consumer);
+    }
 
     public void loadComponents() {
-        this.webServerLoader.loadComponents(this.dependencyLoader.getComponents());
+        try {
+            this.webServerLoader.loadComponents(this.dependencyLoader.getComponents());
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to load components", e);
+        }
     }
 
     /**

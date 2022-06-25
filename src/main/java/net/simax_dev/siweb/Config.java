@@ -11,20 +11,24 @@ import java.net.InetSocketAddress;
 public class Config {
     public static Config _create(
             CommunicationType communicationType,
-            InetSocketAddress socketAddress
+            InetSocketAddress socketAddress,
+            String indexHTML
     ) {
         return new Config(
                 communicationType,
-                socketAddress
+                socketAddress,
+                indexHTML
         );
     }
 
     private Config(
             CommunicationType communicationType,
-            InetSocketAddress socketAddress
+            InetSocketAddress socketAddress,
+            String indexHTML
     ) {
         this.communicationType = communicationType;
         this.socketAddress = socketAddress;
+        this.indexHTML = indexHTML;
     }
 
     private final CommunicationType communicationType;
@@ -37,5 +41,11 @@ public class Config {
 
     public InetSocketAddress getSocketAddress() {
         return this.socketAddress;
+    }
+
+    private final String indexHTML;
+
+    public String getIndexHTML() {
+        return this.indexHTML;
     }
 }

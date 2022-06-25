@@ -1,4 +1,4 @@
-package net.simax_dev.siweb.services;
+package net.simax_dev.siweb.common.services;
 
 public class NetworkClientInformation {
     private final String ip;

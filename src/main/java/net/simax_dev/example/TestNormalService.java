@@ -1,7 +1,7 @@
 package net.simax_dev.example;
 
 import net.simax_dev.siweb.annotations.Service;
-import net.simax_dev.siweb.services.NetworkClient;
+import net.simax_dev.siweb.common.services.NetworkClient;
 
 @Service
 public class TestNormalService {

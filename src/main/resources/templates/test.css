@@ -1,0 +1,11 @@
+.test > #test > div > .meine-dritte-klasse {
+    background-color: red;
+}
+
+.test-style-2 .test2 {
+    background-color: gray;
+}
+
+.test-klasse[x="2"] {
+
+}

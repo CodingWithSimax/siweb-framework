@@ -19,18 +19,19 @@ public class URIPath {
 
     private final List<URIPathPart> parts;
 
-    private URIPath(List<URIPathPart> parts) {
+    public URIPath(List<URIPathPart> parts) {
         this.parts = parts;
     }
 
     public boolean matches(URIPath uriPath) {
-        if (uriPath.parts.size() != this.parts.size()) return false;
+        if (uriPath.parts.size() != this.parts.size() &&
+                !this.parts.get(this.parts.size()-1).getName().equals("**")) return false;
 
         for (int i = 0; i < this.parts.size(); i++) {
             URIPathPart thisPart = this.parts.get(i);
             URIPathPart uriPart = uriPath.parts.get(i);
 
-            if (thisPart.isOptional() || thisPart.isVariable()) continue;
+            if (thisPart.isOptional() || thisPart.isVariable() || thisPart.getName().equals("**")) continue;
 
             if (!thisPart.getName().equals(uriPart.getName())) return false;
         }
@@ -39,7 +40,8 @@ public class URIPath {
     }
 
     public Map<String, String> getURIParams(URIPath uriPath) {
-        if (uriPath.parts.size() != this.parts.size()) return null;
+        if (uriPath.parts.size() != this.parts.size() &&
+            !this.parts.get(this.parts.size()-1).getName().equals("**")) return null;
 
         Map<String, String> result = new HashMap<>();
 
@@ -57,5 +59,17 @@ public class URIPath {
         }
 
         return result;
+    }
+
+    public void addURIPart(URIPathPart uriPathPart) {
+        this.parts.add(uriPathPart);
+    }
+
+    public List<URIPathPart> getParts() {
+        return this.parts;
+    }
+
+    public String toString() {
+        return String.join("/", this.parts.stream().map(URIPathPart::getName).toList());
     }
 }

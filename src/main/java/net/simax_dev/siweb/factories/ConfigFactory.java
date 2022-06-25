@@ -44,10 +44,19 @@ public class ConfigFactory {
         return this;
     }
 
+    private String indexHTML = "templates/index.html";
+
+    public ConfigFactory setIndexHTML(String indexHTML) {
+        this.indexHTML = indexHTML;
+        return this;
+    }
+
+
     public Config build() {
         return Config._create(
                 this.communicationType,
-                this.socketAddress
+                this.socketAddress,
+                this.indexHTML
         );
     }
 }
