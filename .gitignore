@@ -3,3 +3,6 @@
 
 /src/main/resources/net/simax_dev/siweb/dist/
 /client/node_modules
+
+/bin
+bin

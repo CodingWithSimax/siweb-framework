@@ -48,16 +48,18 @@ public class TemplateLoader {
 
         logger.debug("Loaded template: " + path + " with " + vars.size() + " variables");
 
-        return new TemplateData(document.body().html(), resultCSS);
+        return new TemplateData(document.body().html(), resultCSS, vars);
     }
 
     public static final class TemplateData {
         private final String html;
         private final String css;
+        private final Map<String, String> vars;
 
-        public TemplateData(String html, String css) {
+        public TemplateData(String html, String css, Map<String, String> vars) {
             this.html = html;
             this.css = css;
+            this.vars = vars;
         }
 
         public String getHTML() {
@@ -65,6 +67,9 @@ public class TemplateLoader {
         }
         public String getCSS() {
             return this.css;
+        }
+        public Map<String, String> getVars() {
+            return this.vars;
         }
     }
 

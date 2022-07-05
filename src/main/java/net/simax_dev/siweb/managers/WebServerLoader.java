@@ -10,11 +10,17 @@ import net.simax_dev.siweb.objects.URIPath;
 import net.simax_dev.siweb.objects.WebServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -41,11 +47,26 @@ public class WebServerLoader {
     public void loadComponents(Set<Class<?>> components) throws IOException {
         System.out.println("loading components...");
 
-        System.out.println("index html: " + this.webApplication.getConfig().getIndexHTML());
-        InputStream inputStream = this.classLoader.getResourceAsStream(this.webApplication.getConfig().getIndexHTML());
+        InputStream inputStream = WebServerLoader.class.getClassLoader().getResourceAsStream("net/simax_dev/siweb/dist/index.html");
         assert inputStream != null;
-        this.headHTML = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        String scriptHTML = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         inputStream.close();
+
+        inputStream = this.classLoader.getResourceAsStream(this.webApplication.getConfig().getIndexHTML());
+        assert inputStream != null;
+        String headHTML = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        inputStream.close();
+
+        Document documentScriptHTML = Jsoup.parse(scriptHTML);
+        Document documentHeadHTML = Jsoup.parse(headHTML);
+
+        for (Element child : documentScriptHTML.head().children()) {
+            if (child.tag().getName().equals("script")) {
+                documentHeadHTML.head().appendChild(child);
+            }
+        }
+
+        this.headHTML = documentHeadHTML.outerHtml();
 
         components.forEach(this::loadComponentPage);
     }
@@ -72,16 +93,22 @@ public class WebServerLoader {
             Page page = component.getAnnotation(Page.class);
 
             if (page.isFallback()) {
-                this.webServer.setFallback(this.getConsumer(templateData));
+                this.webServer.setFallback(this.getConsumer(templateData, true));
             }
             if (!page.value().isEmpty()) {
-                this.webServer.registerHandler(URIPath.of(page.value()), this.getConsumer(templateData));
+                URIPath uriPath = URIPath.of(page.value());
+                this.webServer.registerHandler(uriPath, this.getConsumer(templateData, true));
+                URIPath apiBasePath = URIPath.of("/api/page/"+uriPath.toString());
+                this.webServer.registerHandler(apiBasePath, this.getConsumer(templateData, false));
+
+                URIPath apiVarPath = URIPath.of("/api/vars/"+uriPath.toString());
+                this.webServer.registerHandler(apiVarPath, this.getVarConsumer(templateData));
             }
         }
     }
 
-    private BiConsumer<HttpExchange, Map<String, String>> getConsumer(TemplateLoader.TemplateData templateData) {
-        String resultHTML = this.templateGenerator.generateTemplate(this.headHTML, templateData.getHTML());
+    private BiConsumer<HttpExchange, Map<String, String>> getConsumer(TemplateLoader.TemplateData templateData, boolean loadHead) {
+        String resultHTML = loadHead ? this.templateGenerator.generateTemplate(this.headHTML, templateData.getHTML()) : templateData.getHTML();
         return ((exchange, stringStringMap) -> {
             try {
                 exchange.getResponseHeaders().set("Content-Type", "text/html");
@@ -89,6 +116,26 @@ public class WebServerLoader {
 
                 OutputStream outputStream = exchange.getResponseBody();
                 outputStream.write(resultHTML.getBytes(StandardCharsets.UTF_8));
+                outputStream.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+    }
+
+    private BiConsumer<HttpExchange, Map<String, String>> getVarConsumer(TemplateLoader.TemplateData templateData) {
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.addAll(templateData.getVars().keySet());
+        String jsonArrayString = jsonArray.toJSONString();
+
+        return ((exchange, stringStringMap) -> {
+
+            try {
+                exchange.getResponseHeaders().set("Content-Type", "application/json");
+                exchange.sendResponseHeaders(200, jsonArrayString.length());
+
+                OutputStream outputStream = exchange.getResponseBody();
+                outputStream.write(jsonArrayString.getBytes(StandardCharsets.UTF_8));
                 outputStream.close();
             } catch (IOException ioException) {
                 ioException.printStackTrace();

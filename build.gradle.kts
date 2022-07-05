@@ -22,6 +22,9 @@ dependencies {
 
     implementation("org.jsoup:jsoup:1.14.3")
     runtimeOnly("org.jsoup:jsoup:1.14.3")
+
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    runtimeOnly("com.googlecode.json-simple:json-simple:1.1.1")
 }
 
 tasks.getByName<Test>("test") {
